@@ -39,6 +39,9 @@ class _MainMenuPageState extends State<MainMenuPage> {
                     "Бот против бота",
                     style: AppTextTheme.button,
                   )),
+              SizedBox(
+                height: 20,
+              ),
               Button(
                   onPressed: () {
                     Game.initGame();

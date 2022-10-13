@@ -60,8 +60,18 @@ class _AiVsPlayerPageState extends State<AiVsPlayerPage> {
                     itemCount: widget.player1.hand.length,
                     itemBuilder: (context, index) {
                       return SizedBox(
-                          child: Image.asset(
-                              widget.player1.hand[index].imagePath));
+                          child: Container(
+                        margin: EdgeInsets.only(left: 5),
+                        width: 140,
+                        height: 300,
+                        decoration: BoxDecoration(
+                            //color: Colors.red,
+                            gradient: LinearGradient(colors: [
+                              Colors.red,
+                              Colors.indigo,
+                            ]),
+                            border: Border.all(color: Colors.white, width: 2)),
+                      ));
                     }),
               ),
               if (widget.player1.isAttack && !playerMove)
@@ -100,13 +110,14 @@ class _AiVsPlayerPageState extends State<AiVsPlayerPage> {
                           " player 1 hand after take cards  = ${widget.player1.hand.length}");
                       print("qty = ${Game.deck.length}");
                       setState(() {
-                        playerMove = false;
                         if (widget.player1.grabbed) {
+                          playerMove = true;
                           widget.player2.isAttack = true;
                           widget.player2.isDefend = false;
                           widget.player1.isAttack = false;
                           widget.player1.isDefend = true;
                         } else {
+                          playerMove = false;
                           widget.player2.isAttack = false;
                           widget.player2.isDefend = true;
                           widget.player1.isAttack = true;
@@ -123,24 +134,21 @@ class _AiVsPlayerPageState extends State<AiVsPlayerPage> {
                       style: AppTextTheme.button,
                     )),
               Divider(height: 20),
-              AnimatedSize(
-                duration: Duration(seconds: 1),
-                child: SizedBox(
-                    height: 100,
-                    child: Row(
-                      children: [
-                        for (var card in Game.table.entries)
-                          Stack(
-                            alignment: Alignment.centerRight,
-                            children: [
-                              Image.asset(card.key.imagePath),
-                              if (card.value != null)
-                                Image.asset(card.value!.imagePath)
-                            ],
-                          )
-                      ],
-                    )),
-              ),
+              SizedBox(
+                  height: 100,
+                  child: Row(
+                    children: [
+                      for (var card in Game.table.entries)
+                        Stack(
+                          alignment: Alignment.centerRight,
+                          children: [
+                            Image.asset(card.key.imagePath),
+                            if (card.value != null)
+                              Image.asset(card.value!.imagePath)
+                          ],
+                        )
+                    ],
+                  )),
               Center(
                 child: Text(playerMove ? "Ваш ход" : "Ход соперника"),
               ),
@@ -160,129 +168,134 @@ class _AiVsPlayerPageState extends State<AiVsPlayerPage> {
                       style: AppTextTheme.button,
                     )),*/
               if (playerMove)
-                Button(
-                    onPressed: () async {
-                      if (widget.player2.isAttack) {
-                        final result =
-                            widget.player2.makeMove(cards: chosenCards);
-                        if (result == false) {
-                          return;
-                        }
-                        print("Table = ${Game.table}");
-                        setState(() {
-                          playerMove = false;
-                        });
-                      } else if (widget.player2.isDefend) {
-                        print(
-                            " player 2 hand  = ${widget.player2.hand.length}");
-                        final result =
-                            widget.player2.defend(chosenCards: chosenCards);
-                        if (result != null) {
-                          return;
-                        }
-                      }
-                      setState(() {
-                        chosenCards.clear();
-                      });
-                    },
-                    child: Text(
-                      "Положить карты",
-                      style: AppTextTheme.button,
-                    )),
-              if (widget.player2.isDefend && playerMove)
-                Button(
-                    onPressed: () async {
-                      widget.player2.grab();
-                      widget.player2.grabbed = true;
-                      print(
-                          " player 2 hand after Defend  = ${widget.player2.hand.length}");
-                      if (Game.deck.isNotEmpty) {
-                        while (widget.player2.hand.length < 6) {
-                          widget.player2.takeCard();
-                        }
-                        while (widget.player1.hand.length < 6) {
-                          widget.player1.takeCard();
-                        }
-                      }
-                      print("qty = ${Game.deck.length}");
-                      print(
-                          " player 2 hand after take cards  = ${widget.player2.hand.length}");
-                      print("Table = ${Game.table}");
-                      setState(() {
-                        playerMove = false;
-                        if (widget.player2.grabbed) {
-                          widget.player1.isAttack = true;
-                          widget.player1.isDefend = false;
-                          widget.player2.isAttack = false;
-                          widget.player2.isDefend = true;
-                        } else {
-                          widget.player1.isAttack = false;
-                          widget.player1.isDefend = true;
-                          widget.player2.isAttack = true;
-                          widget.player2.isDefend = false;
-                        }
-                      });
-                      //await Future.delayed(Duration(seconds: 1));
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Button(
+                        onPressed: () async {
+                          if (widget.player2.isAttack) {
+                            final result =
+                                widget.player2.makeMove(cards: chosenCards);
+                            if (result == false) {
+                              return;
+                            }
+                            print("Table = ${Game.table}");
+                            setState(() {
+                              playerMove = false;
+                            });
+                          } else if (widget.player2.isDefend) {
+                            print(
+                                " player 2 hand  = ${widget.player2.hand.length}");
+                            final result =
+                                widget.player2.defend(chosenCards: chosenCards);
+                            if (result != null) {
+                              return;
+                            }
+                          }
+                          setState(() {
+                            chosenCards.clear();
+                          });
+                        },
+                        child: Text(
+                          "Положить карты",
+                          style: AppTextTheme.button,
+                        )),
+                    if (widget.player2.isDefend && playerMove)
+                      Button(
+                          onPressed: () async {
+                            widget.player2.grab();
+                            widget.player2.grabbed = true;
+                            print(
+                                " player 2 hand after Defend  = ${widget.player2.hand.length}");
+                            if (Game.deck.isNotEmpty) {
+                              while (widget.player2.hand.length < 6) {
+                                widget.player2.takeCard();
+                              }
+                              while (widget.player1.hand.length < 6) {
+                                widget.player1.takeCard();
+                              }
+                            }
+                            print("qty = ${Game.deck.length}");
+                            print(
+                                " player 2 hand after take cards  = ${widget.player2.hand.length}");
+                            print("Table = ${Game.table}");
+                            setState(() {
+                              playerMove = false;
+                              if (widget.player2.grabbed) {
+                                widget.player1.isAttack = true;
+                                widget.player1.isDefend = false;
+                                widget.player2.isAttack = false;
+                                widget.player2.isDefend = true;
+                              } else {
+                                widget.player1.isAttack = false;
+                                widget.player1.isDefend = true;
+                                widget.player2.isAttack = true;
+                                widget.player2.isDefend = false;
+                              }
+                            });
+                            //await Future.delayed(Duration(seconds: 1));
 
-                      setState(() {
-                        chosenCards.clear();
-                        Game.table.clear();
-                      });
-                    },
-                    child: Text(
-                      "Взять",
-                      style: AppTextTheme.button,
-                    )),
-              if (widget.player2.isDefend && playerMove)
-                Button(
-                    onPressed: () async {
-                      for (var card in Game.table.entries) {
-                        if (card.value == null) {
-                          return;
-                        }
-                      }
-                      if (Game.deck.isNotEmpty) {
-                        while (widget.player2.hand.length < 6) {
-                          widget.player2.takeCard();
-                        }
-                        while (widget.player1.hand.length < 6) {
-                          widget.player1.takeCard();
-                        }
-                      }
-                      setState(() {
-                        //playerMove = true;
-                        if (widget.player2.grabbed) {
-                          widget.player1.isAttack = true;
-                          widget.player1.isDefend = false;
-                          widget.player2.isAttack = false;
-                          widget.player2.isDefend = true;
-                        } else {
-                          widget.player1.isAttack = false;
-                          widget.player1.isDefend = true;
-                          widget.player2.isAttack = true;
-                          widget.player2.isDefend = false;
-                        }
-                      });
-                      print(
-                          " player 2 hand after Defend  = ${widget.player2.hand.length}");
-                      if (Game.deck.isNotEmpty) {
-                        while (widget.player2.hand.length < 6) {
-                          widget.player2.takeCard();
-                        }
-                        while (widget.player1.hand.length < 6) {
-                          widget.player1.takeCard();
-                        }
-                      }
-                      //await Future.delayed(Duration(seconds: 1));
+                            setState(() {
+                              chosenCards.clear();
+                              Game.table.clear();
+                            });
+                          },
+                          child: Text(
+                            "Взять",
+                            style: AppTextTheme.button,
+                          )),
+                    if (widget.player2.isDefend && playerMove)
+                      Button(
+                          onPressed: () async {
+                            for (var card in Game.table.entries) {
+                              if (card.value == null) {
+                                return;
+                              }
+                            }
+                            if (Game.deck.isNotEmpty) {
+                              while (widget.player2.hand.length < 6) {
+                                widget.player2.takeCard();
+                              }
+                              while (widget.player1.hand.length < 6) {
+                                widget.player1.takeCard();
+                              }
+                            }
+                            setState(() {
+                              //playerMove = true;
+                              if (widget.player2.grabbed) {
+                                widget.player1.isAttack = true;
+                                widget.player1.isDefend = false;
+                                widget.player2.isAttack = false;
+                                widget.player2.isDefend = true;
+                              } else {
+                                widget.player1.isAttack = false;
+                                widget.player1.isDefend = true;
+                                widget.player2.isAttack = true;
+                                widget.player2.isDefend = false;
+                              }
+                            });
+                            print(
+                                " player 2 hand after Defend  = ${widget.player2.hand.length}");
+                            if (Game.deck.isNotEmpty) {
+                              while (widget.player2.hand.length < 6) {
+                                widget.player2.takeCard();
+                              }
+                              while (widget.player1.hand.length < 6) {
+                                widget.player1.takeCard();
+                              }
+                            }
+                            //await Future.delayed(Duration(seconds: 1));
 
-                      setState(() {
-                        Game.table.clear();
-                      });
-                    },
-                    child: Text(
-                      "Бито",
-                      style: AppTextTheme.button,
-                    )),
+                            setState(() {
+                              Game.table.clear();
+                            });
+                          },
+                          child: Text(
+                            "Бито",
+                            style: AppTextTheme.button,
+                          )),
+                  ],
+                ),
               SizedBox(
                 height: 200,
                 child: ListView.builder(
@@ -348,6 +361,7 @@ class _AiVsPlayerPageState extends State<AiVsPlayerPage> {
                                 }
                               : null,
                           child: Container(
+                            margin: EdgeInsets.only(left: 5),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 border: chosenCards
