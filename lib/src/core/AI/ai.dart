@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_durak/src/data/enums.dart';
 import 'package:flutter_durak/src/data/game/game.dart';
 
@@ -8,6 +9,7 @@ class Player {
   bool isAttack;
   bool isDefend;
   bool ai;
+  bool canToss = false;
 
   bool grabbed = false;
 
@@ -36,14 +38,18 @@ class Player {
           .where((element) => element.rankValue == hand.first.rankValue)
           .toList();
       if (Game.deck.length >= 10) {
-        tmp.removeWhere((element) => element.suit == Game.trump!.suit);
+        var trumpList =
+            hand.where((element) => element.suit == Game.trump!.suit);
+        if (trumpList.length != hand.length) {
+          tmp.removeWhere((element) => element.suit == Game.trump!.suit);
+        }
         print("TMP = ${tmp}");
       }
     } else {
       if (cards!.isEmpty) {
         return false;
       }
-      if (cards!.length > 1) {
+      if (cards.length > 1) {
         int count = 0;
         for (int i = 0; i < cards.length; i++) {
           if (i != cards.length - 1) {
@@ -83,17 +89,15 @@ class Player {
         var approachCards = hand
             .where((element) =>
                 element.rankValue > card.key.rankValue &&
-                (element.suit == card.key.suit))
+                (element.suit == card.key.suit ||
+                    element.suit == Game.trump!.suit))
             .toList();
-        if (approachCards.isEmpty) {
-          approachCards = hand
-              .where((element) => element.suit == Game.trump!.suit)
-              .toList();
-        }
         approachCards.sort((a, b) => a.rankValue.compareTo(b.rankValue));
         if (approachCards.isNotEmpty) {
-          Game.table[card.key] = approachCards.first;
-          hand.removeWhere((element) => element == approachCards.first);
+          if (Game.table[card.key] == null) {
+            Game.table[card.key] = approachCards.first;
+            hand.removeWhere((element) => element == approachCards.first);
+          }
         } else {
           grab();
           grabbed = true;
@@ -103,24 +107,25 @@ class Player {
         grabbed = false;
       }
     } else {
+      if (chosenCards!.length < Game.table.length) {
+        return false;
+      }
       for (var card in Game.table.entries) {
-        print("card = ${card}");
         for (int handCard = 0; handCard < chosenCards!.length; handCard++) {
-          print("handCard = ${handCard}");
           if (chosenCards[handCard].rankValue > card.key.rankValue &&
               chosenCards[handCard].suit == card.key.suit) {
             Game.table[card.key] = chosenCards[handCard];
             hand.removeWhere((element) => element == chosenCards[handCard]);
             grabbed = false;
-            print("1111111");
             break;
           } else if (chosenCards[handCard].rankValue > card.key.rankValue &&
               chosenCards[handCard].suit == Game.trump!.suit) {
-            Game.table[card.key] = chosenCards[handCard];
-            hand.removeWhere((element) => element == chosenCards[handCard]);
-            grabbed = false;
-            print("22222222");
-            break;
+            if (Game.table[card.key] == null) {
+              Game.table[card.key] = chosenCards[handCard];
+              hand.removeWhere((element) => element == chosenCards[handCard]);
+              grabbed = false;
+              break;
+            }
           } else {
             print("Choose another cards!!!");
             if (handCard == chosenCards.length) {
@@ -128,6 +133,65 @@ class Player {
             }
             continue;
           }
+        }
+      }
+    }
+  }
+
+  bool? toss({required BuildContext context, List<PlayingCard>? chosenCards}) {
+    List<PlayingCard> approachCards = [];
+
+    if (canToss) {
+      if (ai) {
+        for (var card in Game.table.entries) {
+          print(hand
+              .where((element) =>
+                  element.rank == card.key.rank ||
+                  element.rank == card.value?.rank)
+              .toList());
+          approachCards.addAll(hand
+              .where((element) =>
+                  element.rank == card.key.rank ||
+                  element.rank == card.value?.rank)
+              .toList());
+        }
+        if (approachCards.isNotEmpty) {
+          for (var card in approachCards) {
+            if (card.suit == Game.trump!.suit && Game.deck.length > 20) {
+              continue;
+            } else {
+              Game.table.addEntries([MapEntry(card, null)]);
+              hand.remove(card);
+            }
+          }
+        } else {
+          print("BITO!!!");
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text("Бито!")));
+          return false;
+        }
+      } else {
+        for (MapEntry card in Game.table.entries) {
+          for (int handCard = 0; handCard < chosenCards!.length; handCard++) {
+            if (chosenCards[handCard].rank == card.key.rank ||
+                chosenCards[handCard].rank == card.value?.rank) {
+              approachCards.add(chosenCards[handCard]);
+              hand.removeWhere((element) => element == chosenCards[handCard]);
+              break;
+            } else {
+              if (handCard == chosenCards.length) {
+                return null;
+              }
+              continue;
+            }
+          }
+        }
+        if (approachCards.isEmpty) {
+          print("Choose another cards to toss!!!");
+          return false;
+        }
+        for (var card in approachCards) {
+          Game.table.addEntries([MapEntry(card, null)]);
         }
       }
     }
