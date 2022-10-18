@@ -107,11 +107,21 @@ class Player {
         grabbed = false;
       }
     } else {
-      if (chosenCards!.length < Game.table.length) {
-        return false;
+      int nullCount = 0;
+      for (int i = 0; i < Game.table.length; i++) {
+        if (Game.table.values.toList()[i] == null) {
+          nullCount++;
+        }
+      }
+
+      if (chosenCards!.length < nullCount) {
+        if (Game.table.values.any((element) => element != null)) {
+        } else {
+          return false;
+        }
       }
       for (var card in Game.table.entries) {
-        for (int handCard = 0; handCard < chosenCards!.length; handCard++) {
+        for (int handCard = 0; handCard < chosenCards.length; handCard++) {
           if (chosenCards[handCard].rankValue > card.key.rankValue &&
               chosenCards[handCard].suit == card.key.suit) {
             Game.table[card.key] = chosenCards[handCard];

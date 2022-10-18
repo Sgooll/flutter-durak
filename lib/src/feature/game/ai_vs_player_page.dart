@@ -52,7 +52,10 @@ class _AiVsPlayerPageState extends State<AiVsPlayerPage> {
         widget.player1.isDefend = false;
       }
     });
+
     setState(() {
+      widget.player1.canToss = false;
+      widget.player2.canToss = false;
       Game.table.clear();
     });
     if (!widget.player1.grabbed) {
@@ -102,6 +105,8 @@ class _AiVsPlayerPageState extends State<AiVsPlayerPage> {
     //await Future.delayed(Duration(seconds: 1));
 
     setState(() {
+      widget.player1.canToss = false;
+      widget.player2.canToss = false;
       Game.table.clear();
     });
   }
@@ -314,6 +319,7 @@ class _AiVsPlayerPageState extends State<AiVsPlayerPage> {
                                       chosenCards.clear();
                                       playerMove = false;
                                     });
+                                    aiDef();
                                     return;
                                   }
                                   final result = widget.player2
@@ -332,6 +338,7 @@ class _AiVsPlayerPageState extends State<AiVsPlayerPage> {
                                   final result = widget.player2
                                       .defend(chosenCards: chosenCards);
                                   if (result != null) {
+                                    print("CAN TOSS");
                                     return;
                                   }
                                   widget.player1.canToss = true;
