@@ -4,20 +4,49 @@ import 'package:flutter_durak/src/data/game/game.dart';
 
 import '../../data/cards/card.dart';
 
-class Player {
+class Player extends ChangeNotifier {
   List<PlayingCard> hand = [];
   bool isAttack;
   bool isDefend;
   bool ai;
-  bool canToss = false;
+  bool _canToss = false;
+
+  bool get canToss => _canToss;
+
+  set canToss(bool value) {
+    _canToss = value;
+    notifyListeners();
+  }
 
   bool grabbed = false;
 
-  Player({
-    required this.isAttack,
-    required this.isDefend,
-    required this.ai,
-  });
+  final List<PlayingCard> _chosenCards = [];
+
+  List<PlayingCard> get chosenCards => _chosenCards;
+
+  clearChosenCard() {
+    chosenCards.clear();
+    notifyListeners();
+  }
+
+  removeChosenCard(int index) {
+    chosenCards.remove(hand[index]);
+    notifyListeners();
+  }
+
+  addChosenCard(int index) {
+    chosenCards.add(hand[index]);
+    notifyListeners();
+  }
+
+  bool _playerMove = false;
+
+  Player(
+      {required this.isAttack,
+      required this.isDefend,
+      required this.ai,
+      bool? playerMove})
+      : _playerMove = playerMove ?? false;
 
   takeCard() {
     hand.add(Game.deck.last);
@@ -175,9 +204,11 @@ class Player {
             }
           }
         } else {
-          print("BITO!!!");
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text("Бито!")));
+          if (!Game.table.containsValue(null)) {
+            print("BITO!!!");
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text("Бито!")));
+          }
           return false;
         }
       } else {
@@ -214,5 +245,12 @@ class Player {
         hand.add(card.value!);
       }
     }
+  }
+
+  bool get playerMove => _playerMove;
+
+  set playerMove(bool value) {
+    _playerMove = value;
+    notifyListeners();
   }
 }

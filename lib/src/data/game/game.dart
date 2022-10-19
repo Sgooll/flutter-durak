@@ -1,4 +1,4 @@
-import 'package:flutter_durak/src/data/cards/func.dart';
+import 'package:flutter_durak/src/data/cards/card_func.dart';
 
 import '../cards/card.dart';
 import '../enums.dart';

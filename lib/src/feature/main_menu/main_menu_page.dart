@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_durak/src/config/themes.dart';
 import 'package:flutter_durak/src/core/AI/ai.dart';
-import 'package:flutter_durak/src/data/cards/func.dart';
+import 'package:flutter_durak/src/data/cards/card_func.dart';
 import 'package:flutter_durak/src/data/game/game.dart';
 import 'package:flutter_durak/src/feature/game/ai_vs_ai_page.dart';
 import 'package:flutter_durak/src/feature/widgets/button.dart';

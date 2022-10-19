@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/AI/ai.dart';
 import '../enums.dart';
+import '../game/game.dart';
 import 'card.dart';
 
 class CardFunc {
